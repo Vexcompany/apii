@@ -329,6 +329,7 @@ footer{
   .hero-stats{gap:1.25rem}
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -607,28 +608,33 @@ function buildEpCard(ep, uid) {
       <div class="pg-inline">
         <div class="pg-inputs">${inputsHtml}</div>
         <div class="pg-row-action">
-          <button class="pg-send" onclick="sendEp('${uid}', '${ep.path}', ${JSON.stringify(paramKeys)})">Kirim</button>
+          <button class="pg-send" data-uid="${uid}" data-path="${ep.path}">Kirim</button>
           <span class="pg-status" id="pgs_${uid}"></span>
         </div>
         <div class="pg-result" id="pgr_${uid}"></div>
       </div>
     </div>`;
 
+  // Event listeners - attached AFTER innerHTML is set
   card.querySelector('.ep-header').addEventListener('click', () => {
     card.classList.toggle('open');
+  });
+
+  card.querySelector('.pg-send').addEventListener('click', () => {
+    sendEp(uid, ep.path, paramKeys);
   });
 
   return card;
 }
 
 async function sendEp(uid, path, params) {
-  const btn = document.querySelector(`[onclick*="sendEp('${uid}'"]`);
+  const btn = document.querySelector(`.pg-send[data-uid="${uid}"]`);
   const statusEl = document.getElementById('pgs_' + uid);
   const resultEl = document.getElementById('pgr_' + uid);
 
   const qs = new URLSearchParams();
   params.forEach(p => {
-    const val = document.getElementById(`inp_${uid}_${p}`);
+    const val = document.getElementById('inp_' + uid + '_' + p);
     if (val && val.value.trim()) qs.set(p, val.value.trim());
   });
 
@@ -645,7 +651,7 @@ async function sendEp(uid, path, params) {
     const elapsed = Date.now() - t0;
     const data = await res.json().catch(() => null);
     statusEl.className = 'pg-status ' + (res.ok ? 'ok' : 'err');
-    statusEl.textContent = `${res.status} · ${elapsed}ms`;
+    statusEl.textContent = res.status + ' · ' + elapsed + 'ms';
     resultEl.textContent = JSON.stringify(data, null, 2);
     resultEl.classList.add('show');
   } catch(e) {
