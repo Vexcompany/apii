@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagaska API</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #7c6af7;
+      --accent-dim: #4a3fa0;
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --code-bg: #0d0d16;
+      --green: #4ade80;
+      --red: #f87171;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .nav-brand {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .nav-brand span { color: var(--accent); }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* HERO */
+    .hero {
+      max-width: 680px;
+      margin: 6rem auto 4rem;
+      padding: 0 1.5rem;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent-dim);
+      border-radius: 99px;
+      padding: 0.25rem 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+
+    .status-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.4rem 1rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* MAIN CONTENT */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 1.5rem 6rem;
+    }
+
+    /* SECTION */
+    .section { margin-bottom: 3rem; }
+
+    .section-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* BASE URL */
+    .base-url-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .base-url-box code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      background: var(--border);
+      border: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { background: var(--accent-dim); color: var(--text); }
+
+    /* USAGE */
+    .usage-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .usage-header {
+      padding: 0.6rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .usage-body {
+      padding: 1.1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .c-dim    { color: var(--muted); }
+    .c-green  { color: var(--green); }
+    .c-purple { color: var(--accent); }
+    .c-white  { color: var(--text); }
+
+    /* PLAYGROUND */
+    .playground {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .pg-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .pg-body { padding: 1.25rem; }
+
+    .pg-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .method-select, .path-input {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .method-select:focus, .path-input:focus {
+      border-color: var(--accent);
+    }
+
+    .method-select { width: 90px; }
+    .path-input { flex: 1; }
+
+    .send-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .response-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.65;
+      min-height: 80px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--muted);
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .res-status {
+      font-size: 0.72rem;
+      margin-bottom: 0.5rem;
+      display: none;
+    }
+
+    .res-ok   { color: var(--green); }
+    .res-err  { color: var(--red); }
+
+    /* NOTE */
+    .note {
+      background: rgba(124,106,247,0.07);
+      border: 1px solid var(--accent-dim);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .note strong { color: var(--text); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 540px) {
+      .pg-row { flex-wrap: wrap; }
+      .method-select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Pagaska<span>API</span></div>
+  <span class="badge">v1.0</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">REST API Proxy</div>
+  <h1>Akses API dengan<br><span>lebih mudah</span></h1>
+  <p>Pagaska API meneruskan request kamu ke host utama secara otomatis — cukup kirim endpoint, sisanya kami yang urus.</p>
+  <div class="status-bar">
+    <div class="dot"></div>
+    Operasional
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BASE URL -->
+  <div class="section">
+    <div class="section-title">Base URL</div>
+    <div class="base-url-box">
+      <code id="base-url">https://your-project.vercel.app/api</code>
+      <button class="copy-btn" onclick="copyBase()">Salin</button>
+    </div>
+  </div>
+
+  <!-- CARA PENGGUNAAN -->
+  <div class="section">
+    <div class="section-title">Cara Penggunaan</div>
+    <div class="usage-box">
+      <div class="usage-header">
+        <span>Contoh Request</span>
+      </div>
+      <div class="usage-body"><span class="c-dim"># Format URL</span>
+<span class="c-green">GET</span>  <span class="c-purple">/api</span><span class="c-white">{endpoint}?{query}</span>
+
+<span class="c-dim"># Contoh — endpoint AI Allen</span>
+<span class="c-green">GET</span>  <span class="c-purple">/api</span><span class="c-white">/ai/allen?text=halo</span>
+
+<span class="c-dim"># curl</span>
+<span class="c-white">curl "<span id="curl-example">https://your-project.vercel.app</span>/api/ai/allen?text=halo"</span></div>
+    </div>
+    <div style="margin-top: 0.75rem;">
+      <div class="note">
+        <strong>Catatan:</strong> API key disisipkan otomatis oleh server — kamu tidak perlu menyertakannya di request. Parameter <code>apikey</code> dari client akan diabaikan demi keamanan.
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYGROUND -->
+  <div class="section">
+    <div class="section-title">Playground</div>
+    <div class="playground">
+      <div class="pg-header">Coba langsung dari browser</div>
+      <div class="pg-body">
+        <div class="pg-row">
+          <select class="method-select" id="method">
+            <option>GET</option>
+            <option>POST</option>
+          </select>
+          <input
+            class="path-input"
+            id="path-input"
+            type="text"
+            placeholder="/ai/allen?text=halo"
+            value="/ai/allen?text=halo"
+          />
+          <button class="send-btn" id="send-btn" onclick="sendRequest()">Kirim</button>
+        </div>
+        <div class="res-status" id="res-status"></div>
+        <div class="response-box" id="response-box">Response akan muncul di sini...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Pagaska API &mdash; Proxy by PAGASKA &bull; Powered by Vercel
+</footer>
+
+<script>
+  // Isi base URL otomatis dari window.location
+  const origin = window.location.origin;
+  document.getElementById('base-url').textContent = origin + '/api';
+  document.getElementById('curl-example').textContent = origin;
+
+  function copyBase() {
+    navigator.clipboard.writeText(origin + '/api');
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Tersalin';
+    setTimeout(() => btn.textContent = 'Salin', 1500);
+  }
+
+  async function sendRequest() {
+    const method = document.getElementById('method').value;
+    const path = document.getElementById('path-input').value.trim();
+    const btn = document.getElementById('send-btn');
+    const box = document.getElementById('response-box');
+    const statusEl = document.getElementById('res-status');
+
+    if (!path) return;
+
+    const fullPath = path.startsWith('/') ? path : '/' + path;
+    const url = '/api' + fullPath;
+
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+    box.textContent = '';
+    statusEl.style.display = 'none';
+
+    const start = Date.now();
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Accept': 'application/json' }
+      });
+
+      const elapsed = Date.now() - start;
+      const data = await res.json().catch(() => null);
+
+      statusEl.style.display = 'block';
+      statusEl.className = 'res-status ' + (res.ok ? 'res-ok' : 'res-err');
+      statusEl.textContent = `${res.status} ${res.statusText} — ${elapsed}ms`;
+      box.textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      statusEl.style.display = 'block';
+      statusEl.className = 'res-status res-err';
+      statusEl.textContent = 'Gagal menghubungi server';
+      box.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Kirim';
+    }
+  }
+
+  // Enter key di input
+  document.getElementById('path-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendRequest();
+  });
+</script>
+
+</body>
+</html>
