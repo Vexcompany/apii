@@ -1,463 +1,698 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pagaska API</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pagaska API</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;
+  --surface:#0e0e1a;
+  --surface2:#13131f;
+  --border:#1a1a2e;
+  --border2:#22223a;
+  --accent:#6c5ce7;
+  --accent2:#a29bfe;
+  --accent-glow:rgba(108,92,231,0.15);
+  --text:#e8e8f4;
+  --muted:#5a5a7a;
+  --muted2:#7a7a9a;
+  --green:#00b894;
+  --red:#e17055;
+  --yellow:#fdcb6e;
+  --radius:10px;
+  --nav-h:60px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-    :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --border: #1e1e2e;
-      --accent: #7c6af7;
-      --accent-dim: #4a3fa0;
-      --text: #e2e2f0;
-      --muted: #6b6b8a;
-      --code-bg: #0d0d16;
-      --green: #4ade80;
-      --red: #f87171;
-    }
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;
+  background:rgba(8,8,16,0.9);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  z-index:200;
+}
+.nav-brand{font-size:1.1rem;font-weight:800;letter-spacing:-0.03em;cursor:pointer;user-select:none}
+.nav-brand span{color:var(--accent2)}
+.nav-links{display:flex;gap:0.25rem;align-items:center}
+.nav-link{
+  font-size:0.8rem;color:var(--muted2);
+  padding:0.4rem 0.75rem;border-radius:7px;
+  cursor:pointer;transition:all 0.15s;border:none;background:none;
+}
+.nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface2)}
+.nav-link.active{color:var(--accent2)}
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+/* PAGES */
+.page{display:none;min-height:calc(100vh - var(--nav-h));padding-top:var(--nav-h)}
+.page.active{display:block}
 
-    /* NAV */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 2rem;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-    }
+/* ===== HOME PAGE ===== */
+.hero{
+  text-align:center;
+  padding:5rem 1.5rem 3rem;
+  max-width:700px;
+  margin:0 auto;
+}
+.hero-badge{
+  display:inline-block;
+  font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--accent2);border:1px solid rgba(162,155,254,0.3);
+  border-radius:99px;padding:0.3rem 0.9rem;margin-bottom:1.5rem;
+}
+.hero h1{
+  font-size:clamp(2.2rem,5vw,3.5rem);font-weight:900;
+  letter-spacing:-0.05em;line-height:1.05;margin-bottom:1rem;
+}
+.hero h1 span{
+  background:linear-gradient(135deg,var(--accent2),#fd79a8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{font-size:1rem;color:var(--muted2);line-height:1.7;margin-bottom:2rem}
+.hero-stats{
+  display:flex;justify-content:center;gap:2rem;
+  margin-bottom:2.5rem;flex-wrap:wrap;
+}
+.stat{text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800;color:var(--accent2);letter-spacing:-0.03em}
+.stat-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.hero-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  background:var(--accent);color:#fff;border:none;
+  padding:0.7rem 1.5rem;border-radius:8px;font-size:0.88rem;font-weight:600;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-primary:hover{background:#5a4ed4;transform:translateY(-1px)}
+.btn-outline{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border2);
+  padding:0.7rem 1.5rem;border-radius:8px;font-size:0.88rem;font-weight:500;
+  cursor:pointer;transition:all 0.15s;
+}
+.btn-outline:hover{border-color:var(--accent2);color:var(--accent2)}
 
-    .nav-brand {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
+/* CATEGORY GRID */
+.section{max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem}
+.section-hd{
+  font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:1.25rem;
+  padding-bottom:0.75rem;border-bottom:1px solid var(--border);
+}
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:0.75rem;
+}
+.cat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.1rem;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.cat-card:hover{
+  border-color:var(--accent);background:var(--surface2);
+  transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,92,231,0.12);
+}
+.cat-icon{font-size:1.4rem;flex-shrink:0}
+.cat-info{min-width:0}
+.cat-name{font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-count{font-size:0.72rem;color:var(--muted2);margin-top:0.1rem}
 
-    .nav-brand span { color: var(--accent); }
+/* ===== DOCS PAGE ===== */
+.docs-layout{display:flex;min-height:calc(100vh - var(--nav-h))}
 
-    .badge {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 99px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
+/* Sidebar */
+.sidebar{
+  width:240px;flex-shrink:0;
+  border-right:1px solid var(--border);
+  position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));
+  overflow-y:auto;padding:1.25rem 0;
+  background:var(--surface);
+  scrollbar-width:thin;scrollbar-color:var(--border2) transparent;
+}
+.sidebar-search{
+  padding:0 1rem 1rem;
+}
+.sidebar-search input{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);border-radius:7px;padding:0.5rem 0.75rem;
+  font-size:0.8rem;outline:none;transition:border-color 0.15s;
+}
+.sidebar-search input:focus{border-color:var(--accent)}
+.sidebar-search input::placeholder{color:var(--muted)}
+.sb-group{margin-bottom:0.25rem}
+.sb-group-label{
+  font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);padding:0.5rem 1rem 0.25rem;
+}
+.sb-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.45rem 1rem;cursor:pointer;font-size:0.82rem;
+  color:var(--muted2);border-left:2px solid transparent;
+  transition:all 0.12s;gap:0.5rem;
+}
+.sb-item:hover{color:var(--text);background:var(--surface2);border-left-color:var(--border2)}
+.sb-item.active{color:var(--accent2);background:var(--accent-glow);border-left-color:var(--accent)}
+.sb-item-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-item-count{
+  font-size:0.68rem;background:var(--border2);
+  border-radius:99px;padding:0.1rem 0.45rem;flex-shrink:0;color:var(--muted2);
+}
+.sb-item.active .sb-item-count{background:var(--accent-glow);color:var(--accent2)}
 
-    /* HERO */
-    .hero {
-      max-width: 680px;
-      margin: 6rem auto 4rem;
-      padding: 0 1.5rem;
-      text-align: center;
-    }
+/* Docs main */
+.docs-main{flex:1;min-width:0;padding:2rem 2rem 4rem}
+.docs-header{margin-bottom:1.75rem}
+.docs-title{
+  font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.3rem;
+}
+.docs-subtitle{font-size:0.85rem;color:var(--muted2)}
 
-    .hero-tag {
-      display: inline-block;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      border: 1px solid var(--accent-dim);
-      border-radius: 99px;
-      padding: 0.25rem 0.8rem;
-      margin-bottom: 1.5rem;
-    }
+/* Global search */
+.global-search-wrap{margin-bottom:1.5rem}
+.global-search{
+  width:100%;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);border-radius:var(--radius);
+  padding:0.7rem 1rem;font-size:0.9rem;outline:none;
+  transition:border-color 0.15s;
+}
+.global-search:focus{border-color:var(--accent)}
+.global-search::placeholder{color:var(--muted)}
 
-    h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
+/* Endpoint list */
+.ep-list{display:flex;flex-direction:column;gap:0.5rem}
+.ep-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color 0.15s;
+}
+.ep-card:hover{border-color:var(--border2)}
+.ep-header{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.85rem 1.1rem;cursor:pointer;
+  user-select:none;
+}
+.ep-method{
+  font-size:0.68rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.2rem 0.55rem;border-radius:5px;flex-shrink:0;
+  background:rgba(0,184,148,0.12);color:var(--green);border:1px solid rgba(0,184,148,0.2);
+}
+.ep-path{
+  font-family:'Courier New',monospace;font-size:0.82rem;color:var(--accent2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;
+}
+.ep-name{font-size:0.82rem;color:var(--muted2);flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ep-status{
+  font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:99px;flex-shrink:0;
+}
+.ep-status.ready{background:rgba(0,184,148,0.1);color:var(--green);border:1px solid rgba(0,184,148,0.2)}
+.ep-status.maintenance{background:rgba(253,203,110,0.1);color:var(--yellow);border:1px solid rgba(253,203,110,0.2)}
+.ep-chevron{color:var(--muted);font-size:0.8rem;flex-shrink:0;transition:transform 0.2s}
+.ep-card.open .ep-chevron{transform:rotate(180deg)}
 
-    h1 span { color: var(--accent); }
+.ep-body{
+  display:none;border-top:1px solid var(--border);padding:1.1rem;
+  background:var(--surface2);
+}
+.ep-card.open .ep-body{display:block}
 
-    .hero p {
-      font-size: 1.05rem;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 520px;
-      margin: 0 auto 2rem;
-    }
+.ep-section-title{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+.params-table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+.params-table th{font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0.35rem 0.5rem;border-bottom:1px solid var(--border)}
+.params-table td{font-size:0.8rem;padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);vertical-align:top}
+.params-table td:first-child{font-family:'Courier New',monospace;color:var(--accent2);white-space:nowrap}
+.params-table td:last-child{color:var(--muted2)}
+.params-table tr:last-child td{border-bottom:none}
 
-    .status-bar {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.82rem;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 99px;
-      padding: 0.4rem 1rem;
-    }
+/* Playground in card */
+.pg-inline{margin-top:0.75rem}
+.pg-inputs{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.75rem}
+.pg-field{display:flex;flex-direction:column;gap:0.25rem}
+.pg-field label{font-size:0.7rem;color:var(--muted2);letter-spacing:0.04em}
+.pg-field input{
+  background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);border-radius:7px;padding:0.5rem 0.75rem;
+  font-family:'Courier New',monospace;font-size:0.8rem;outline:none;
+  transition:border-color 0.15s;
+}
+.pg-field input:focus{border-color:var(--accent)}
+.pg-row-action{display:flex;align-items:center;gap:0.75rem}
+.pg-send{
+  background:var(--accent);color:#fff;border:none;
+  border-radius:7px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;
+  cursor:pointer;transition:opacity 0.15s;white-space:nowrap;
+}
+.pg-send:hover{opacity:0.85}
+.pg-send:disabled{opacity:0.4;cursor:not-allowed}
+.pg-status{font-size:0.72rem}
+.pg-status.ok{color:var(--green)}
+.pg-status.err{color:var(--red)}
+.pg-result{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;padding:0.85rem 1rem;
+  font-family:'Courier New',monospace;font-size:0.76rem;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+  color:var(--muted2);max-height:280px;overflow-y:auto;
+  display:none;margin-top:0.6rem;
+}
+.pg-result.show{display:block}
 
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 6px var(--green);
-    }
+/* Category header inside docs */
+.cat-section{margin-bottom:3rem;scroll-margin-top:calc(var(--nav-h) + 1.5rem)}
+.cat-section-header{
+  display:flex;align-items:center;gap:0.75rem;
+  margin-bottom:1rem;padding-bottom:0.75rem;
+  border-bottom:1px solid var(--border);
+}
+.cat-section-icon{font-size:1.3rem}
+.cat-section-name{font-size:1.1rem;font-weight:700;letter-spacing:-0.02em}
+.cat-section-count{font-size:0.75rem;color:var(--muted2);margin-left:auto}
 
-    /* MAIN CONTENT */
-    .container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 1.5rem 6rem;
-    }
+/* no results */
+.no-results{text-align:center;padding:3rem;color:var(--muted)}
 
-    /* SECTION */
-    .section { margin-bottom: 3rem; }
+/* ===== PRICING PAGE ===== */
+.pricing-wrap{max-width:900px;margin:0 auto;padding:3rem 1.5rem 5rem}
+.pricing-hd{text-align:center;margin-bottom:3rem}
+.pricing-hd h2{font-size:2rem;font-weight:800;letter-spacing:-0.04em;margin-bottom:0.5rem}
+.pricing-hd p{color:var(--muted2);font-size:0.95rem}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.plan{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:1.75rem;position:relative;overflow:hidden;
+}
+.plan.featured{border-color:var(--accent);background:linear-gradient(135deg,var(--surface) 0%,rgba(108,92,231,0.07) 100%)}
+.plan-badge{
+  position:absolute;top:1rem;right:1rem;
+  font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--accent);color:#fff;
+  padding:0.2rem 0.6rem;border-radius:99px;
+}
+.plan-name{font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:0.5rem}
+.plan-price{font-size:2.2rem;font-weight:900;letter-spacing:-0.05em;margin-bottom:0.25rem}
+.plan-price span{font-size:0.9rem;font-weight:400;color:var(--muted2)}
+.plan-desc{font-size:0.8rem;color:var(--muted2);margin-bottom:1.25rem;line-height:1.6}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem}
+.plan-features li{font-size:0.82rem;color:var(--muted2);display:flex;align-items:flex-start;gap:0.5rem}
+.plan-features li::before{content:"–";color:var(--accent2);flex-shrink:0;margin-top:1px}
+.plan-btn{
+  width:100%;border:1px solid var(--border2);background:transparent;
+  color:var(--text);border-radius:8px;padding:0.65rem;
+  font-size:0.85rem;cursor:pointer;transition:all 0.15s;font-weight:500;
+}
+.plan.featured .plan-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+.plan-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.plan.featured .plan-btn:hover{opacity:0.85}
 
-    .section-title {
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;padding:2rem;
+  font-size:0.73rem;color:var(--muted);
+  border-top:1px solid var(--border);
+}
 
-    /* BASE URL */
-    .base-url-box {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .base-url-box code {
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      color: var(--accent);
-      word-break: break-all;
-    }
-
-    .copy-btn {
-      background: var(--border);
-      border: none;
-      color: var(--muted);
-      font-size: 0.75rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-    }
-
-    .copy-btn:hover { background: var(--accent-dim); color: var(--text); }
-
-    /* USAGE */
-    .usage-box {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .usage-header {
-      padding: 0.6rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .usage-body {
-      padding: 1.1rem 1.25rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      line-height: 1.75;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .c-dim    { color: var(--muted); }
-    .c-green  { color: var(--green); }
-    .c-purple { color: var(--accent); }
-    .c-white  { color: var(--text); }
-
-    /* PLAYGROUND */
-    .playground {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .pg-header {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .pg-body { padding: 1.25rem; }
-
-    .pg-row {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-      align-items: center;
-    }
-
-    .method-select, .path-input {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 0.6rem 0.9rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .method-select:focus, .path-input:focus {
-      border-color: var(--accent);
-    }
-
-    .method-select { width: 90px; }
-    .path-input { flex: 1; }
-
-    .send-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-    }
-
-    .send-btn:hover { opacity: 0.85; }
-    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .response-box {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.8rem;
-      line-height: 1.65;
-      min-height: 80px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--muted);
-      max-height: 360px;
-      overflow-y: auto;
-    }
-
-    .res-status {
-      font-size: 0.72rem;
-      margin-bottom: 0.5rem;
-      display: none;
-    }
-
-    .res-ok   { color: var(--green); }
-    .res-err  { color: var(--red); }
-
-    /* NOTE */
-    .note {
-      background: rgba(124,106,247,0.07);
-      border: 1px solid var(--accent-dim);
-      border-radius: 8px;
-      padding: 0.9rem 1.1rem;
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .note strong { color: var(--text); }
-
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.75rem;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-    }
-
-    @media (max-width: 540px) {
-      .pg-row { flex-wrap: wrap; }
-      .method-select { width: 100%; }
-    }
-  </style>
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .docs-main{padding:1.25rem 1rem 3rem}
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:1.9rem}
+  .ep-name{display:none}
+}
+@media(max-width:480px){
+  .cat-grid{grid-template-columns:1fr 1fr}
+  .hero-stats{gap:1.25rem}
+}
+</style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand">Pagaska<span>API</span></div>
-  <span class="badge">v1.0</span>
+  <div class="nav-brand" onclick="showPage('home')">Pagaska<span>API</span></div>
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-home" onclick="showPage('home')">Beranda</button>
+    <button class="nav-link" id="nav-docs" onclick="showPage('docs')">Dokumentasi</button>
+    <button class="nav-link" id="nav-pricing" onclick="showPage('pricing')">Pricing</button>
+  </div>
 </nav>
 
-<div class="hero">
-  <div class="hero-tag">REST API Proxy</div>
-  <h1>Akses API dengan<br><span>lebih mudah</span></h1>
-  <p>Pagaska API meneruskan request kamu ke host utama secara otomatis — cukup kirim endpoint, sisanya kami yang urus.</p>
-  <div class="status-bar">
-    <div class="dot"></div>
-    Operasional
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">REST API Platform</div>
+    <h1>API untuk<br><span>semua kebutuhan</span></h1>
+    <p>Akses ratusan endpoint AI, downloader, tools, dan data dengan satu API key. Cepat, andal, dan mudah diintegrasikan.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" id="total-eps">242</div>
+        <div class="stat-label">Endpoint</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="total-cats">17</div>
+        <div class="stat-label">Kategori</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">GET</div>
+        <div class="stat-label">Method</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">REST</div>
+        <div class="stat-label">Standard</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showPage('docs')">Lihat Dokumentasi</button>
+      <button class="btn-outline" onclick="showPage('pricing')">Pricing</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hd">Semua Kategori</div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+
+  <footer>Pagaska API &mdash; Powered by Vercel &bull; &copy; 2025 PAGASKA</footer>
+</div>
+
+<!-- ===== DOCS ===== -->
+<div class="page" id="page-docs">
+  <div class="docs-layout">
+    <aside class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" placeholder="Filter kategori..." id="sb-filter" oninput="filterSidebar(this.value)"/>
+      </div>
+      <div id="sidebar-list"></div>
+    </aside>
+    <main class="docs-main">
+      <div class="docs-header">
+        <div class="docs-title">Dokumentasi API</div>
+        <div class="docs-subtitle">242 endpoint tersedia &mdash; klik endpoint untuk mencoba langsung</div>
+      </div>
+      <div class="global-search-wrap">
+        <input class="global-search" type="text" placeholder="Cari endpoint, nama, atau path..." id="global-search" oninput="globalSearch(this.value)"/>
+      </div>
+      <div id="docs-content"></div>
+    </main>
   </div>
 </div>
 
-<div class="container">
-
-  <!-- BASE URL -->
-  <div class="section">
-    <div class="section-title">Base URL</div>
-    <div class="base-url-box">
-      <code id="base-url">https://your-project.vercel.app/api</code>
-      <button class="copy-btn" onclick="copyBase()">Salin</button>
+<!-- ===== PRICING ===== -->
+<div class="page" id="page-pricing">
+  <div class="pricing-wrap">
+    <div class="pricing-hd">
+      <h2>Pricing</h2>
+      <p>Pilih paket yang sesuai kebutuhanmu. Semua paket termasuk akses ke seluruh endpoint.</p>
     </div>
-  </div>
-
-  <!-- CARA PENGGUNAAN -->
-  <div class="section">
-    <div class="section-title">Cara Penggunaan</div>
-    <div class="usage-box">
-      <div class="usage-header">
-        <span>Contoh Request</span>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">Rp 0 <span>/ bulan</span></div>
+        <div class="plan-desc">Cocok untuk pengembangan dan pengujian awal.</div>
+        <ul class="plan-features">
+          <li>100 request / hari</li>
+          <li>Semua endpoint tersedia</li>
+          <li>Response JSON standar</li>
+          <li>Support komunitas</li>
+        </ul>
+        <button class="plan-btn">Mulai Gratis</button>
       </div>
-      <div class="usage-body"><span class="c-dim"># Format URL</span>
-<span class="c-green">GET</span>  <span class="c-purple">/api</span><span class="c-white">{endpoint}?{query}</span>
-
-<span class="c-dim"># Contoh — endpoint AI Allen</span>
-<span class="c-green">GET</span>  <span class="c-purple">/api</span><span class="c-white">/ai/allen?text=halo</span>
-
-<span class="c-dim"># curl</span>
-<span class="c-white">curl "<span id="curl-example">https://your-project.vercel.app</span>/api/ai/allen?text=halo"</span></div>
-    </div>
-    <div style="margin-top: 0.75rem;">
-      <div class="note">
-        <strong>Catatan:</strong> API key disisipkan otomatis oleh server — kamu tidak perlu menyertakannya di request. Parameter <code>apikey</code> dari client akan diabaikan demi keamanan.
+      <div class="plan featured">
+        <div class="plan-badge">Populer</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">Rp 25.000 <span>/ bulan</span></div>
+        <div class="plan-desc">Untuk developer yang membutuhkan kapasitas lebih tinggi.</div>
+        <ul class="plan-features">
+          <li>5.000 request / hari</li>
+          <li>Prioritas rate limit</li>
+          <li>Semua endpoint tersedia</li>
+          <li>Support via WhatsApp</li>
+        </ul>
+        <button class="plan-btn">Pilih Pro</button>
       </div>
-    </div>
-  </div>
-
-  <!-- PLAYGROUND -->
-  <div class="section">
-    <div class="section-title">Playground</div>
-    <div class="playground">
-      <div class="pg-header">Coba langsung dari browser</div>
-      <div class="pg-body">
-        <div class="pg-row">
-          <select class="method-select" id="method">
-            <option>GET</option>
-            <option>POST</option>
-          </select>
-          <input
-            class="path-input"
-            id="path-input"
-            type="text"
-            placeholder="/ai/allen?text=halo"
-            value="/ai/allen?text=halo"
-          />
-          <button class="send-btn" id="send-btn" onclick="sendRequest()">Kirim</button>
-        </div>
-        <div class="res-status" id="res-status"></div>
-        <div class="response-box" id="response-box">Response akan muncul di sini...</div>
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">Custom</div>
+        <div class="plan-desc">Untuk kebutuhan skala besar atau integrasi bisnis.</div>
+        <ul class="plan-features">
+          <li>Request tidak terbatas</li>
+          <li>Dedicated support</li>
+          <li>SLA guarantee</li>
+          <li>Custom endpoint request</li>
+        </ul>
+        <button class="plan-btn">Hubungi Kami</button>
       </div>
     </div>
   </div>
-
+  <footer>Pagaska API &mdash; Powered by Vercel &bull; &copy; 2025 PAGASKA</footer>
 </div>
-
-<footer>
-  Pagaska API &mdash; Proxy by PAGASKA &bull; Powered by Vercel
-</footer>
 
 <script>
-  // Isi base URL otomatis dari window.location
-  const origin = window.location.origin;
-  document.getElementById('base-url').textContent = origin + '/api';
-  document.getElementById('curl-example').textContent = origin;
+const ENDPOINTS = [{"category": "Artificial Intelligence", "items": [{"name": "Allen AI", "path": "/ai/allen", "fullPath": "/ai/allen?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Model AI (default: Olmo-3.1-32B-Think)"}}, {"name": "Andi Search AI", "path": "/ai/andisearch", "fullPath": "/ai/andisearch?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke Andi Search"}}, {"name": "AIW3 AI", "path": "/ai/aiw3", "fullPath": "/ai/aiw3?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Baidu Search Ai", "path": "/ai/baidu", "fullPath": "/ai/baidu?q=&apikey=", "status": "Ready", "params": {"q": "Keyword pencarian"}}, {"name": "Bible Ai", "path": "/ai/bible", "fullPath": "/ai/bible?q=&apikey=", "status": "Ready", "params": {"q": "Query to process"}}, {"name": "ChatboxAI", "path": "/ai/chatbox", "fullPath": "/ai/chatbox?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "ChatDay AI", "path": "/ai/chatday", "fullPath": "/ai/chatday?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Model AI (default: openai/gpt-5.5)"}}, {"name": "ChatGPT", "path": "/ai/chatgpt", "fullPath": "/ai/chatgpt?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Mr. Chatterbox AI", "path": "/ai/chatterbox", "fullPath": "/ai/chatterbox?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Dola AI Chat", "path": "/ai/dola", "fullPath": "/ai/dola?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Microsoft Copilot AI", "path": "/ai/copilot", "fullPath": "/ai/copilot?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Model AI (default, think-deeper, gpt-5)"}}, {"name": "DegreeGuru", "path": "/ai/degreeguru", "fullPath": "/ai/degreeguru?text=&apikey=", "status": "Ready", "params": {"text": "Pertanyaan yang ingin diajukan ke AI"}}, {"name": "DeepSeek AI", "path": "/ai/deepseek", "fullPath": "/ai/deepseek?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "DiffusionGemma CodeGen", "path": "/ai/diffusiongemma", "fullPath": "/ai/diffusiongemma?text=&apikey=", "status": "Ready", "params": {"text": "Deskripsi kode yang mau dibuat (misal: 'A clean pricing page', 'Python function to sort list')"}}, {"name": "Duck AI", "path": "/ai/duckai", "fullPath": "/ai/duckai?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Elin AI", "path": "/ai/elin", "fullPath": "/ai/elin?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Epsilon", "path": "/ai/epsilon", "fullPath": "/ai/epsilon?q=&apikey=", "status": "Ready", "params": {"q": "Query to process"}}, {"name": "FeelBetterBot", "path": "/ai/feelbetterbot", "fullPath": "/ai/feelbetterbot?text=&prompt=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim", "prompt": "System prompt / instruksi karakter AI"}}, {"name": "Felo AI", "path": "/ai/felo", "fullPath": "/ai/felo?q=&apikey=", "status": "Ready", "params": {"q": "Query to process"}}, {"name": "FlatAI Chat", "path": "/ai/flatai", "fullPath": "/ai/flatai?text=&mood=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "mood": "Mood/personality (default, friendly, professional, humorous, technical)"}}, {"name": "Lakera Gandalf AI Chat", "path": "/ai/gandlaf", "fullPath": "/ai/gandlaf?text=&defender=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "defender": "Tipe defender (baseline, enhanced, etc) - default baseline"}}, {"name": "Gemini AI", "path": "/ai/gemini", "fullPath": "/ai/gemini?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Gita AI", "path": "/ai/gita", "fullPath": "/ai/gita?q=&apikey=", "status": "Ready", "params": {"q": "Query to process"}}, {"name": "GPTAnon Chat", "path": "/ai/gptanon", "fullPath": "/ai/gptanon?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "GPTKFAI Chat", "path": "/ai/gptkfai", "fullPath": "/ai/gptkfai?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "HammerAI Character Chat", "path": "/ai/hammer", "fullPath": "/ai/hammer?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke karakter", "model": "Optional model/character: sleepy (default) | sarah | myra | aiko"}}, {"name": "HuggingFace Chat", "path": "/ai/huggingface", "fullPath": "/ai/huggingface?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Ai Jennifer", "path": "/ai/jennifer", "fullPath": "/ai/jennifer?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Kimi AI", "path": "/ai/kimi", "fullPath": "/ai/kimi?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "LangChain AI Chat", "path": "/ai/langchain", "fullPath": "/ai/langchain?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Liquid AI", "path": "/ai/liquid", "fullPath": "/ai/liquid?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Model AI (default: lfm2.5-8b-a1b-20260528)"}}, {"name": "LlamaCoder Ai", "path": "/ai/llamacoder", "fullPath": "/ai/llamacoder?prompt=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi aplikasi atau landing page yang ingin dibuat"}}, {"name": "LuminAI", "path": "/ai/luminai", "fullPath": "/ai/luminai?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Proton Lumo Chat Ai", "path": "/ai/lumo", "fullPath": "/ai/lumo?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke Lumo AI"}}, {"name": "Ai math", "path": "/ai/math", "fullPath": "/ai/math?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Xiaomi MiMo v2.5", "path": "/ai/mimo", "fullPath": "/ai/mimo?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke MiMo"}}, {"name": "MiniMax Ai", "path": "/ai/minimax", "fullPath": "/ai/minimax?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Model AI (default: v3, options: v3, r1)"}}, {"name": "Mistral Chat", "path": "/ai/mistral", "fullPath": "/ai/mistral?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "MuslimAI", "path": "/ai/muslimai", "fullPath": "/ai/muslimai?text=&apikey=", "status": "Ready", "params": {"text": "Pertanyaan seputar Islam"}}, {"name": "Naire AI", "path": "/ai/naire", "fullPath": "/ai/naire?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Nova AI Chat", "path": "/ai/nova", "fullPath": "/ai/nova?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke Nova AI (wajib)"}}, {"name": "ChatGpt 4.0", "path": "/ai/openai", "fullPath": "/ai/openai?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Powerbrain Ai", "path": "/ai/powerbrain", "fullPath": "/ai/powerbrain?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Recapio AI", "path": "/ai/recapio", "fullPath": "/ai/recapio?url=&apikey=", "status": "Ready", "params": {"url": "YouTube video URL"}}, {"name": "Riple AI Chat", "path": "/ai/riple", "fullPath": "/ai/riple?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Sahabat AI Chat", "path": "/ai/sahabatai", "fullPath": "/ai/sahabatai?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "AI SDK Chatbot", "path": "/ai/sdk", "fullPath": "/ai/sdk?text=&model=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI", "model": "Optional model (default: anthropic/claude-sonnet-4.6). Pilihan: openai/gpt-4o, openai/gpt-4o-mini, google/gemini-2.0-flash, anthropic/claude-sonnet-4.6, dll"}}, {"name": "Shion Ai", "path": "/ai/shion", "fullPath": "/ai/shion?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Skole AI", "path": "/ai/skole", "fullPath": "/ai/skole?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "S-Pawn AI Chat", "path": "/ai/spawn", "fullPath": "/ai/spawn?message=&apikey=", "status": "Ready", "params": {"message": "Pesan yang ingin dikirim ke AI"}}, {"name": "Teach Anything AI", "path": "/ai/techanything", "fullPath": "/ai/techanything?prompt=&apikey=", "status": "Ready", "params": {"prompt": "Pertanyaan atau topik yang ingin dijelaskan"}}, {"name": "Tini AI Chat", "path": "/ai/tini", "fullPath": "/ai/tini?message=&apikey=", "status": "Maintenance", "params": {"message": "Pesan yang ingin dikirim ke AI"}}, {"name": "Unlimited Ai", "path": "/ai/unlimited", "fullPath": "/ai/unlimited?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}, {"name": "Venice Ai", "path": "/ai/venice", "fullPath": "/ai/venice?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "XDash AI Chat", "path": "/ai/xdash", "fullPath": "/ai/xdash?text=&apikey=", "status": "Ready", "params": {"text": "Pesan yang ingin dikirim ke AI"}}, {"name": "Zenz Ai", "path": "/ai/zenz", "fullPath": "/ai/zenz?text=&apikey=", "status": "Ready", "params": {"text": "Text to process"}}]}, {"category": "ai-generate", "items": [{"name": "Lyrics Ai", "path": "/ai-generate/lyricsai", "fullPath": "/ai-generate/lyricsai?topic=&style=&apikey=", "status": "Ready", "params": {"topic": "Topic for the song (e.g., kecewa sama seseorang yang saya percaya)", "style": "Music style (pop, rock, hiphop, jazz, country, etc) - default pop"}}, {"name": "Remusic AI", "path": "/ai-generate/remusic", "fullPath": "/ai-generate/remusic?prompt=&styles=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi lagu yang ingin dibuat", "styles": "Style musik (contoh: Pop, Rock, Jazz)"}}, {"name": "Sound Of Text", "path": "/ai-generate/soundoftext", "fullPath": "/ai-generate/soundoftext?text=&voice=&apikey=", "status": "Ready", "params": {"text": "Text to convert to speech", "voice": "Voice code (default: en-US, available: en-US, id-ID, etc)"}}, {"name": "Google TTS", "path": "/ai-generate/tts", "fullPath": "/ai-generate/tts?apikey=", "status": "Ready", "params": {"text": "Text to speak", "lang": "Language code (default: en)", "speed": "Speech speed (default: 1.0)"}}]}, {"category": "AI Image", "items": [{"name": "Anigen", "path": "/ai-image/anifun", "fullPath": "/ai-image/anifun?prompt=&model_id=&size=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat (anime / SDXL)", "model_id": "Optional: model ID SDXL (default 518 - EvaClausMix Pony)", "size": "Optional: 1:1 | 2:3 | 3:2 | 9:16 | 16:9 (default 2:3)"}}, {"name": "DeepAI", "path": "/ai-image/deepai", "fullPath": "/ai-image/deepai?prompt=&model=&size=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat", "model": "Optional model (default: hd). Pilihan: hd | standard | genius | classic | anime | cute | fantasy | abstract | cyberpunk | watercolor", "size": "Optional ukuran (default: 640x640). Pilihan: 512x512 | 640x640 | 768x768 | 1024x1024"}}, {"name": "Dola Text2Image", "path": "/ai-image/dola", "fullPath": "/ai-image/dola?text=&apikey=", "status": "Ready", "params": {"text": "Deskripsi gambar yang ingin dibuat"}}, {"name": "MagicStudio AI", "path": "/ai-image/magicstudio", "fullPath": "/ai-image/magicstudio?prompt=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat"}}, {"name": "PicLumen Text to Image", "path": "/ai-image/piclumen", "fullPath": "/ai-image/piclumen?prompt=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat"}}, {"name": "Writecream AI Image Generator (Flux Schnell + Lambda)", "path": "/ai-image/writecream", "fullPath": "/ai-image/writecream?prompt=&model=&aspect=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat", "model": "Optional: flux-schnell (default, works), flux-2-pro, nano-banana-pro, seedream-4, dreamina-3.1, seedance-1-pro-fast, seededit-3.0, omni-human-1.5", "aspect": "Optional: portrait (default) | landscape | square"}}, {"name": "Zimage AI", "path": "/ai-image/zimage", "fullPath": "/ai-image/zimage?prompt=&size=&apikey=", "status": "Ready", "params": {"prompt": "Deskripsi gambar yang ingin dibuat", "size": "Ukuran gambar (1:1, 2:3, 3:2) default: 1:1"}}]}, {"category": "anime", "items": [{"name": "Kuronime Search", "path": "/anime/kuronime", "fullPath": "/anime/kuronime?q=&apikey=", "status": "Ready", "params": {"q": "Search query (wajib, contoh: naruto)"}}, {"name": "MyAnimeList Search", "path": "/anime/myanimelist", "fullPath": "/anime/myanimelist?q=&apikey=", "status": "Ready", "params": {"q": "Search query (wajib, contoh: one piece)"}}, {"name": "Otakotaku Anime Search", "path": "/anime/otakotaku", "fullPath": "/anime/otakotaku?q=&apikey=", "status": "Ready", "params": {"q": "Search query (wajib, contoh: doraemon)"}}, {"name": "Winbu", "path": "/anime/winbu", "fullPath": "/anime/winbu?q=&apikey=", "status": "Ready", "params": {"q": "Search query (wajib)"}}]}, {"category": "bypass", "items": [{"name": "Google Recaptcha v3", "path": "/bypass/recaptchav3", "fullPath": "/bypass/recaptchav3?sitekey=&url=&apikey=", "status": "Ready", "params": {"sitekey": "Sitekey Recaptcha", "url": "URL website"}}, {"name": "Cloudflare Solve", "path": "/bypass/cloudflare", "fullPath": "/bypass/cloudflare?url=&timeout=&apikey=", "status": "Ready", "params": {"url": "Target URL with Cloudflare protection", "timeout": "Timeout in seconds (default 30)"}}, {"name": "Cors Proxy Solve", "path": "/bypass/cors-proxy", "fullPath": "/bypass/cors-proxy?url=&apikey=", "status": "Ready", "params": {"url": "URL website target yang mau di-proxy (harus http/https)"}}, {"name": "FixupX Tweet", "path": "/bypass/fixupx", "fullPath": "/bypass/fixupx?url=&apikey=", "status": "Ready", "params": {"url": "FixupX tweet URL"}}, {"name": "Linkvertise Bypass", "path": "/bypass/linkvertise", "fullPath": "/bypass/linkvertise?url=&apikey=", "status": "Ready", "params": {"url": "Linkvertise URL"}}, {"name": "Terabox Downloader", "path": "/bypass/terabox", "fullPath": "/bypass/terabox?url=&apikey=", "status": "Ready", "params": {"url": "Terabox share URL"}}, {"name": "Turnstile Solver", "path": "/bypass/turnstile", "fullPath": "/bypass/turnstile?sitekey=&siteurl=&apikey=", "status": "Ready", "params": {"sitekey": "Cloudflare Turnstile sitekey", "siteurl": "Target website URL"}}, {"name": "Tutwuri Solve", "path": "/bypass/tutwuri", "fullPath": "/bypass/tutwuri?url=&apikey=", "status": "Ready", "params": {"url": "Safelink URL (sfl.gl, tutwuri.id, khaddavi.net, bahasteknologi.com)"}}]}, {"category": "Canvas", "items": [{"name": "Brat Sticker", "path": "/canvas/bratv2", "fullPath": "/canvas/bratv2?text=&apikey=", "status": "Ready", "params": {"text": "Text for sticker"}}, {"name": "Brat Video", "path": "/canvas/bratvid", "fullPath": "/canvas/bratvid?text=&apikey=", "status": "Ready", "params": {"text": "Text for video"}}, {"name": "Carbon Code Image", "path": "/canvas/carbon", "fullPath": "/canvas/carbon?text=&apikey=", "status": "Ready", "params": {"text": "Code text"}}, {"name": "Fake Discord", "path": "/canvas/fakediscord", "fullPath": "/canvas/fakediscord?name=&text=&url=&apikey=", "status": "Ready", "params": {"name": "Discord username", "text": "Message text", "url": "Profile picture URL"}}, {"name": "Fake Story", "path": "/canvas/fakestory", "fullPath": "/canvas/fakestory?name=&text=&url=&apikey=", "status": "Ready", "params": {"name": "Username", "text": "Story text", "url": "Profile picture URL"}}, {"name": "Gura Image Editor", "path": "/canvas/gura", "fullPath": "/canvas/gura?url=&apikey=", "status": "Ready", "params": {"url": "URL gambar yang ingin diedit (wajib)"}}, {"name": "Gussian", "path": "/canvas/gussian", "fullPath": "/canvas/gussian?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "IQC", "path": "/canvas/iqc", "fullPath": "/canvas/iqc?text=&posisi=&jam=&apikey=", "status": "Ready", "params": {"text": "Text content", "posisi": "Position", "jam": "Time"}}, {"name": "Meme", "path": "/canvas/meme", "fullPath": "/canvas/meme?url=&top=&bottom=&apikey=", "status": "Ready", "params": {"url": "Image URL", "top": "Top text", "bottom": "Bottom text"}}, {"name": "MLBB", "path": "/canvas/mlbb", "fullPath": "/canvas/mlbb?url=&name=&apikey=", "status": "Ready", "params": {"url": "Image URL", "name": "Player name"}}, {"name": "Music Card generator", "path": "/canvas/musiccard", "fullPath": "/canvas/musiccard?title=&artist=&url=&apikey=", "status": "Ready", "params": {"title": "Song title", "artist": "Artist name", "url": "Image URL"}}, {"name": "NASA Boarding Pass", "path": "/canvas/boardingpass", "fullPath": "/canvas/boardingpass?name=&apikey=", "status": "Ready", "params": {"name": "Nama penumpang"}}, {"name": "Pixelate", "path": "/canvas/pixelate", "fullPath": "/canvas/pixelate?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Quoted", "path": "/canvas/quotechat", "fullPath": "/canvas/quotechat?text=&name=&profile=&apikey=", "status": "Ready", "params": {"text": "Message text", "name": "Username", "profile": "Profile picture URL"}}, {"name": "Quote Image", "path": "/canvas/quoteimg", "fullPath": "/canvas/quoteimg?url=&text=&author=&apikey=", "status": "Ready", "params": {"url": "Profile picture URL", "text": "Quote text", "author": "Author name"}}, {"name": "Image roasting", "path": "/canvas/roast", "fullPath": "/canvas/roast?text1=&text2=&text3=&apikey=", "status": "Ready", "params": {"text1": "First text", "text2": "Second text (optional)", "text3": "Third text (optional)"}}, {"name": "Sertifikat Olol", "path": "/canvas/sertifikatolol", "fullPath": "/canvas/sertifikatolol?text=&apikey=", "status": "Ready", "params": {"text": "Name text"}}, {"name": "Wanted", "path": "/canvas/wanted", "fullPath": "/canvas/wanted?name=&crime=&reward=&photo=&apikey=", "status": "Ready", "params": {"name": "Criminal name", "crime": "Crime description", "reward": "Reward amount", "photo": "Photo URL"}}, {"name": "Warna", "path": "/canvas/warna", "fullPath": "/canvas/warna?url=&theme=&apikey=", "status": "Ready", "params": {"url": "Image URL", "theme": "Color theme"}}]}, {"category": "details", "items": [{"name": "Apple App Store", "path": "/details/appstore", "fullPath": "/details/appstore?id=&apikey=", "status": "Ready", "params": {"id": "App ID (wajib, contoh: 1235601864 untuk TikTok)"}}, {"name": "IDN Live Details", "path": "/details/idnlive", "fullPath": "/details/idnlive?url=&apikey=", "status": "Ready", "params": {"url": "IDN live stream URL"}}, {"name": "Google Play Store", "path": "/details/googleplay", "fullPath": "/details/googleplay?id=&apikey=", "status": "Ready", "params": {"id": "APK ID (wajib, contoh: org.mozilla.firefox)"}}, {"name": "SpeedTest Details", "path": "/details/speedtest", "fullPath": "/details/speedtest?id=&apikey=", "status": "Ready", "params": {"id": "Result ID SpeedTest (wajib, contoh: 109057624)"}}, {"name": "WhatsApp Channel Details", "path": "/details/whatsapp", "fullPath": "/details/whatsapp?url=&apikey=", "status": "Ready", "params": {"url": "WhatsApp Channel URL"}}, {"name": "Xiaomi Product", "path": "/details/xiaomi", "fullPath": "/details/xiaomi?url=&apikey=", "status": "Ready", "params": {"url": "Xiaomi product URL (mi.co.id)"}}]}, {"category": "Download", "items": [{"name": "TikTok Download", "path": "/download/tiktok", "fullPath": "/download/tiktok?url=&apikey=", "status": "Ready", "params": {"url": "TikTok video URL"}}, {"name": "All Download", "path": "/download/all", "fullPath": "/download/all?url=&apikey=", "status": "Ready", "params": {"url": "Media URL"}}, {"name": "CapCut Video Downloader", "path": "/download/capcut", "fullPath": "/download/capcut?url=&apikey=", "status": "Ready", "params": {"url": "CapCut video URL (wajib, contoh: https://www.capcut.com/tv2/ZS9TGy3wE/)"}}, {"name": "Douyin Downloader", "path": "/download/douyin", "fullPath": "/download/douyin?url=&apikey=", "status": "Ready", "params": {"url": "URL video Douyin/TikTok yang ingin didownload"}}, {"name": "Google Drive Download", "path": "/download/gdrive", "fullPath": "/download/gdrive?url=&apikey=", "status": "Ready", "params": {"url": "Google Drive URL"}}, {"name": "Mediafire Download", "path": "/download/mediafire", "fullPath": "/download/mediafire?url=&apikey=", "status": "Ready", "params": {"url": "Mediafire URL"}}, {"name": "Pinterest Download", "path": "/download/pinterest", "fullPath": "/download/pinterest?url=&apikey=", "status": "Ready", "params": {"url": "Pinterest URL"}}, {"name": "Pixiv Downloader", "path": "/download/pixiv", "fullPath": "/download/pixiv?url=&apikey=", "status": "Ready", "params": {"url": "URL artwork Pixiv (contoh: https://www.pixiv.net/artworks/145776627)"}}, {"name": "Reddit Downloader", "path": "/download/reddit", "fullPath": "/download/reddit?url=&apikey=", "status": "Ready", "params": {"url": "Reddit post URL"}}, {"name": "Scribd Download", "path": "/download/scribd", "fullPath": "/download/scribd?url=&apikey=", "status": "Ready", "params": {"url": "URL dokumen Scribd"}}, {"name": "Shopee Video Downloader", "path": "/download/shopee", "fullPath": "/download/shopee?url=&apikey=", "status": "Ready", "params": {"url": "URL video Shopee"}}, {"name": "SnackVideo Downloader", "path": "/download/snackvideo", "fullPath": "/download/snackvideo?url=&apikey=", "status": "Ready", "params": {"url": "SnackVideo/Kwai video URL"}}, {"name": "SoundCloud Downloader", "path": "/download/soundcloud", "fullPath": "/download/soundcloud?url=&apikey=", "status": "Ready", "params": {"url": "SoundCloud URL (wajib, contoh: https://on.soundcloud.com/xxx)"}}, {"name": "Spotify Download", "path": "/download/spotify", "fullPath": "/download/spotify?url=&apikey=", "status": "Ready", "params": {"url": "Spotify track URL"}}, {"name": "Downloader playlist spotify", "path": "/download/spotifylist", "fullPath": "/download/spotifylist?url=&apikey=", "status": "Ready", "params": {"url": "Spotify Playlist URL (wajib)"}}, {"name": "1024Terabox Downloader", "path": "/download/terabox", "fullPath": "/download/terabox?url=&apikey=", "status": "Ready", "params": {"url": "TeraBox share URL (1024terabox.com)"}}, {"name": "Threads Download", "path": "/download/threads", "fullPath": "/download/threads?url=&apikey=", "status": "Ready", "params": {"url": "Threads URL"}}, {"name": "TikTok Story Downloader", "path": "/download/tiktokstory", "fullPath": "/download/tiktokstory?url=&apikey=", "status": "Ready", "params": {"url": "TikTok video URL (vt.tiktok.com or www.tiktok.com)"}}, {"name": "TikTok Downloader", "path": "/download/tiktok", "fullPath": "/download/tiktok?url=&apikey=", "status": "Ready", "params": {"url": "URL video TikTok"}}, {"name": "Twitter Download", "path": "/download/twitter", "fullPath": "/download/twitter?url=&apikey=", "status": "Ready", "params": {"url": "Twitter/X URL"}}, {"name": "Videy Download", "path": "/download/videy", "fullPath": "/download/videy?url=&apikey=", "status": "Ready", "params": {"url": "Videy URL"}}, {"name": "YouTube Downloader", "path": "/download/ytdl", "fullPath": "/download/ytdl?url=&quality=&apikey=", "status": "Ready", "params": {"url": "URL video YouTube", "quality": "Kualitas video (opsional, contoh: 720, 480, 360)"}}, {"name": "YouTube Music", "path": "/download/ytmusic", "fullPath": "/download/ytmusic?url=&apikey=", "status": "Ready", "params": {"url": "YouTube video URL"}}]}, {"category": "Games", "items": [{"name": "Honesty Score Game", "path": "/games/honesty", "fullPath": "/games/honesty?q=&answer=&apikey=", "status": "Ready", "params": {"q": "Pertanyaan yang diajukan ke user", "answer": "Jawaban user (jujur / tidak jujur / ragu)"}}, {"name": "Khodam Checker", "path": "/games/khodam", "fullPath": "/games/khodam?name=&apikey=", "status": "Ready", "params": {"name": "Enter your name"}}, {"name": "Maths", "path": "/games/maths", "fullPath": "/games/maths?apikey=", "status": "Ready", "params": {}}, {"name": "JKT48 Member Guess", "path": "/games/tebakjkt", "fullPath": "/games/tebakjkt?apikey=", "status": "Ready", "params": {}}, {"name": "Lyric Guess", "path": "/games/tebaklirik", "fullPath": "/games/tebaklirik?apikey=", "status": "Ready", "params": {}}, {"name": "Tebak Presiden", "path": "/games/tebakpresiden", "fullPath": "/games/tebakpresiden?apikey=", "status": "Ready", "params": {}}, {"name": "Surah Guess", "path": "/games/tebaksurah", "fullPath": "/games/tebaksurah?apikey=", "status": "Ready", "params": {}}, {"name": "Riddle Challenge", "path": "/games/tekateki", "fullPath": "/games/tekateki?apikey=", "status": "Ready", "params": {}}, {"name": "Trivia", "path": "/games/trivia", "fullPath": "/games/trivia?apikey=", "status": "Ready", "params": {}}, {"name": "Ular Tangga", "path": "/games/ulartangga", "fullPath": "/games/ulartangga?apikey=", "status": "Ready", "params": {"board": "Board image URL", "user1": "Player 1 position (1-100)", "user2": "Player 2 position (1-100)", "user3": "Player 3 position (1-100)", "user4": "Player 4 position (1-100)", "stabil_x": "X offset", "stabil_y": "Y offset"}}]}, {"category": "Information", "items": [{"name": "Blox Fruit Stock", "path": "/info/bloxfruit", "fullPath": "/info/bloxfruit?apikey=", "status": "Ready", "params": {}}, {"name": "Cryptocurrency Data", "path": "/info/crypto", "fullPath": "/info/crypto?coin=&apikey=", "status": "Ready", "params": {"coin": "Cryptocurrency symbol (btc, eth, etc)"}}, {"name": "Weather Information", "path": "/info/cuaca", "fullPath": "/info/cuaca?city=&apikey=", "status": "Ready", "params": {"city": "City name"}}, {"name": "Info currency", "path": "/info/currency", "fullPath": "/info/currency?base=&apikey=", "status": "Ready", "params": {"base": "Base currency"}}, {"name": "Donghua Updates", "path": "/info/donghua", "fullPath": "/info/donghua?apikey=", "status": "Ready", "params": {}}, {"name": "Earthquake Information", "path": "/info/cekgempa", "fullPath": "/info/cekgempa?apikey=", "status": "Ready", "params": {}}, {"name": "Google Finance", "path": "/info/gfinance", "fullPath": "/info/gfinance?q=&apikey=", "status": "Ready", "params": {"q": "Ticker (NVDA, AAPL:NASDAQ) atau nama perusahaan (apple, tesla, bbca)"}}, {"name": "Treasury Gold", "path": "/info/gold", "fullPath": "/info/gold?apikey=", "status": "Ready", "params": {}}, {"name": "Prayer Times", "path": "/info/sholat", "fullPath": "/info/sholat?city=&apikey=", "status": "Ready", "params": {"city": "City name"}}, {"name": "Mobile Legends Events", "path": "/info/ml", "fullPath": "/info/ml?apikey=", "status": "Ready", "params": {}}, {"name": "Shipping Calculator", "path": "/info/ongkir", "fullPath": "/info/ongkir?asal=&tujuan=&berat=&apikey=", "status": "Ready", "params": {"asal": "Origin location", "tujuan": "Destination location", "berat": "Package weight"}}, {"name": "Webtoon Latest", "path": "/info/webtoon", "fullPath": "/info/webtoon?apikey=", "status": "Ready", "params": {}}, {"name": "XL Info", "path": "/info/xl", "fullPath": "/info/xl?msisdn=&apikey=", "status": "Ready", "params": {"msisdn": "Nomor XL (contoh: 62819xxx)"}}]}, {"category": "Live", "items": [{"name": "IDN Live Plus", "path": "/live/idnlive", "fullPath": "/live/idnlive?apikey=", "status": "Ready", "params": {}}, {"name": "Market crypto update", "path": "/live/market", "fullPath": "/live/market?apikey=", "status": "Ready", "params": {}}, {"name": "Live Radio", "path": "/live/radio", "fullPath": "/live/radio?country=&apikey=", "status": "Ready", "params": {"country": "Country name"}}]}, {"category": "maps", "items": [{"name": "Apple Maps", "path": "/maps/apple", "fullPath": "/maps/apple?q=&apikey=", "status": "Ready", "params": {"q": "Query pencarian (wajib, contoh: Gubug Udang Situ Cibubur)", "lat": "Latitude (opsional, default: -7.191109)", "lng": "Longitude (opsional, default: 110.397800)"}}, {"name": "Bing Maps", "path": "/maps/bing", "fullPath": "/maps/bing?q=&apikey=", "status": "Ready", "params": {"q": "Kata kunci lokasi (wajib, contoh: depok)", "limit": "Jumlah hasil (opsional, default: 5, max: 20)"}}]}, {"category": "Random Content", "items": [{"name": "Sad Quotes", "path": "/random/baskara", "fullPath": "/random/baskara?apikey=", "status": "Ready", "params": {}}, {"name": "Blue Archive", "path": "/random/ba", "fullPath": "/random/ba?apikey=", "status": "Ready", "params": {}}, {"name": "Fake User Data", "path": "/random/fakedata", "fullPath": "/random/fakedata?apikey=", "status": "Ready", "params": {}}, {"name": "Advisory Quotes", "path": "/random/janganlah", "fullPath": "/random/janganlah?apikey=", "status": "Ready", "params": {}}, {"name": "Romantic Quotes", "path": "/random/katabucin", "fullPath": "/random/katabucin?apikey=", "status": "Ready", "params": {}}, {"name": "Islamic Quotes", "path": "/random/kataislami", "fullPath": "/random/kataislami?apikey=", "status": "Ready", "params": {}}, {"name": "Motivational Quotes", "path": "/random/motivasi", "fullPath": "/random/motivasi?apikey=", "status": "Ready", "params": {}}, {"name": "Islamic Motivation", "path": "/random/motivasi-islam", "fullPath": "/random/motivasi-islam?apikey=", "status": "Ready", "params": {}}, {"name": "Christian Motivation", "path": "/random/motivasi-kristen", "fullPath": "/random/motivasi-kristen?apikey=", "status": "Ready", "params": {}}, {"name": "Proxy", "path": "/random/proxy", "fullPath": "/random/proxy?apikey=", "status": "Ready", "params": {}}]}, {"category": "Search", "items": [{"name": "Acode Search", "path": "/search/acode", "fullPath": "/search/acode?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Baidu Search", "path": "/search/baidu", "fullPath": "/search/baidu?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Bilibili tv Search", "path": "/search/bilibili", "fullPath": "/search/bilibili?q=&apikey=", "status": "Ready", "params": {"q": "Keyword pencarian (judul anime, nama kreator, video, dll)"}}, {"name": "ML Build Search", "path": "/search/buildml", "fullPath": "/search/buildml?hero=&apikey=", "status": "Ready", "params": {"hero": "Hero name to search"}}, {"name": "Cookpad Search", "path": "/search/cookpad", "fullPath": "/search/cookpad?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Detik Search", "path": "/search/detikcom", "fullPath": "/search/detikcom?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "DNS Complete Lookup", "path": "/search/dns", "fullPath": "/search/dns?domain=&apikey=", "status": "Ready", "params": {"domain": "Domain to lookup"}}, {"name": "Douyin Search", "path": "/search/douyin", "fullPath": "/search/douyin?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Group WA Search", "path": "/search/groupwa", "fullPath": "/search/groupwa?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "GSMArena Search", "path": "/search/gsmarena", "fullPath": "/search/gsmarena?phone=&apikey=", "status": "Ready", "params": {"phone": "Phone model to search"}}, {"name": "HappyMod Search", "path": "/search/happymod", "fullPath": "/search/happymod?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Hiitwixtor Search", "path": "/search/hiitwixtor", "fullPath": "/search/hiitwixtor?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Jadwal TV Search", "path": "/search/jadwaltv", "fullPath": "/search/jadwaltv?channel=&apikey=", "status": "Ready", "params": {"channel": "TV channel name"}}, {"name": "Jikan Search", "path": "/search/jikan", "fullPath": "/search/jikan?anime=&character=&apikey=", "status": "Ready", "params": {"anime": "Anime name", "character": "Character name"}}, {"name": "Komiku Search", "path": "/search/komiku", "fullPath": "/search/komiku?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Lahelu Search", "path": "/search/lahelu", "fullPath": "/search/lahelu?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Lirik Search", "path": "/search/lirik", "fullPath": "/search/lirik?q=&apikey=", "status": "Ready", "params": {"q": "Song title"}}, {"name": "Loker Search", "path": "/search/loker", "fullPath": "/search/loker?q=&city=&apikey=", "status": "Ready", "params": {"q": "Job search query", "city": "City name"}}, {"name": "MCPEDL Search", "path": "/search/mcpedl", "fullPath": "/search/mcpedl?query=&apikey=", "status": "Ready", "params": {"query": "Category (maps, mods, shaders, textures, downloading)"}}, {"name": "NPM Search", "path": "/search/npm", "fullPath": "/search/npm?q=&apikey=", "status": "Ready", "params": {"q": "Package name"}}, {"name": "PDDIKTI Student Lookup", "path": "/search/pddikti", "fullPath": "/search/pddikti?q=&id=&apikey=", "status": "Ready", "params": {"q": "Nama atau NIM mahasiswa untuk pencarian", "id": "ID mahasiswa dari hasil pencarian (untuk detail)"}}, {"name": "Pinterest Search", "path": "/search/pinterest", "fullPath": "/search/pinterest?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Pixiv Artwork Search", "path": "/search/pixiv", "fullPath": "/search/pixiv?q=&page=&mode=&order=&apikey=", "status": "Ready", "params": {"q": "Keyword pencarian (nama karakter, tag, artist, dll)", "page": "Optional: nomor halaman (default 1)", "mode": "Optional: all (default) | safe | r18", "order": "Optional: date_d (terbaru, default) | date (terlama) | popular_d (terpopuler, butuh login)"}}, {"name": "Shazam Music Search", "path": "/search/shazam", "fullPath": "/search/shazam?q=&apikey=", "status": "Ready", "params": {"q": "Search query (wajib, contoh: aku isine)"}}, {"name": "SnackVideo Search", "path": "/search/snackvideo", "fullPath": "/search/snackvideo?q=&apikey=", "status": "Ready", "params": {"q": "Keyword pencarian video SnackVideo"}}, {"name": "Sound Search", "path": "/search/sound", "fullPath": "/search/sound?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Spotify Search", "path": "/search/spotify", "fullPath": "/search/spotify?q=&limit=&apikey=", "status": "Ready", "params": {"q": "Search keyword (e.g., nex p, jkt48)", "limit": "Number of results per type (default 10, max 50)"}}, {"name": "Surah Search", "path": "/search/surah", "fullPath": "/search/surah?q=&apikey=", "status": "Ready", "params": {"q": "Surah name"}}, {"name": "TikTok Search", "path": "/search/tiktok", "fullPath": "/search/tiktok?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "WattPad Search", "path": "/search/wattpad", "fullPath": "/search/wattpad?query=&apikey=", "status": "Ready", "params": {"query": "Search query for WattPad stories"}}, {"name": "YouTube Search", "path": "/search/youtube", "fullPath": "/search/youtube?q=&apikey=", "status": "Ready", "params": {"q": "Search query"}}, {"name": "Character.AI Search", "path": "/search/characterai", "fullPath": "/search/characterai?q=&apikey=", "status": "Ready", "params": {"q": "Keyword pencarian karakter"}}]}, {"category": "Stalk", "items": [{"name": "Discord Stalk", "path": "/stalk/discord", "fullPath": "/stalk/discord?id=&apikey=", "status": "Ready", "params": {"id": "Discord user ID"}}, {"name": "Facebook Stalk", "path": "/stalk/facebook", "fullPath": "/stalk/facebook?q=&apikey=", "status": "Ready", "params": {"q": "Facebook username"}}, {"name": "Free Fire Stalk", "path": "/stalk/ff", "fullPath": "/stalk/ff?id=&apikey=", "status": "Ready", "params": {"id": "Free Fire User ID"}}, {"name": "GitHub Stalk", "path": "/stalk/github", "fullPath": "/stalk/github?username=&apikey=", "status": "Ready", "params": {"username": "GitHub username"}}, {"name": "GitHub Repo Stalk", "path": "/stalk/githubrepo", "fullPath": "/stalk/githubrepo?user=&repo=&apikey=", "status": "Ready", "params": {"user": "GitHub username", "repo": "Repository name"}}, {"name": "Mobile Legends Stalker", "path": "/stalk/mlbb", "fullPath": "/stalk/mlbb?user_id=&zone_id=&apikey=", "status": "Ready", "params": {"user_id": "User ID Mobile Legends (wajib)", "zone_id": "Zone ID Mobile Legends (wajib)"}}, {"name": "NPM Stalk", "path": "/stalk/npm", "fullPath": "/stalk/npm?username=&apikey=", "status": "Ready", "params": {"username": "NPM username"}}, {"name": "Pinterest Stalk", "path": "/stalk/pinterest", "fullPath": "/stalk/pinterest?username=&apikey=", "status": "Ready", "params": {"username": "Pinterest username"}}, {"name": "Roblox Stalk", "path": "/stalk/roblox", "fullPath": "/stalk/roblox?user=&apikey=", "status": "Ready", "params": {"user": "Roblox username"}}, {"name": "Telegram Stalk", "path": "/stalk/telegram", "fullPath": "/stalk/telegram?username=&apikey=", "status": "Ready", "params": {"username": "Telegram username"}}, {"name": "TikTok Stalk", "path": "/stalk/tiktok", "fullPath": "/stalk/tiktok?username=&apikey=", "status": "Ready", "params": {"username": "TikTok username"}}, {"name": "YouTube Stalk", "path": "/stalk/youtube", "fullPath": "/stalk/youtube?query=&apikey=", "status": "Ready", "params": {"query": "YouTube channel name"}}]}, {"category": "Tools", "items": [{"name": "Age detection", "path": "/tools/agedetect", "fullPath": "/tools/agedetect?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Card Tool", "path": "/tools/vccard", "fullPath": "/tools/vccard?type=&num=&apikey=", "status": "Ready", "params": {"type": "Card type (visa, mastercard, etc)", "num": "Number of cards"}}, {"name": "Postal Code Lookup", "path": "/tools/cekkodepos", "fullPath": "/tools/cekkodepos?q=&apikey=", "status": "Ready", "params": {"q": "City or district name"}}, {"name": "Cek Resi", "path": "/tools/cekresi", "fullPath": "/tools/cekresi?resi=&kurir=&apikey=", "status": "Ready", "params": {"resi": "Nomor resi (wajib)", "kurir": "Ekspedisi (wajib, contoh: shopee-express)"}}, {"name": "Convert Tool", "path": "/tools/convert", "fullPath": "/tools/convert?code=&type=&apikey=", "status": "Ready", "params": {"code": "Code to convert", "type": "Conversion type (tocjs, toesm)"}}, {"name": "USD To IDR", "path": "/tools/currency", "fullPath": "/tools/currency?amount=&apikey=", "status": "Ready", "params": {"amount": "Amount to convert"}}, {"name": "Domain Checker", "path": "/tools/domain", "fullPath": "/tools/domain?q=&apikey=", "status": "Ready", "params": {"q": "Domain to check"}}, {"name": "Enhance Image", "path": "/tools/enchane", "fullPath": "/tools/enchane?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Ephoto360 Text Effects", "path": "/tools/ephoto", "fullPath": "/tools/ephoto?effect=&text=&apikey=", "status": "Ready", "params": {"effect": "Effect type (glitch, write, advancedglow, typography, pixelglitch, neonglitch, flag, flag3d, deleting, blackpinkstyle, glowing, underwater, logomaker, cartoonstyle, papercutstyle, watercolor, effectclouds, blackpinklogo, gradient, summerbeach, luxurygold, multicoloredneon, sandsummer, galaxywallpaper, 1917style, makingneon, royal, freecreate, galaxystyle, lighteffects)", "text": "Text to apply effect"}}, {"name": "Pastebin Extractor", "path": "/tools/pastebin", "fullPath": "/tools/pastebin?url=&apikey=", "status": "Ready", "params": {"url": "Pastebin URL"}}, {"name": "Gist Extractor", "path": "/tools/gist", "fullPath": "/tools/gist?url=&apikey=", "status": "Ready", "params": {"url": "GitHub Gist URL"}}, {"name": "Image to prompt", "path": "/tools/img2prompt", "fullPath": "/tools/img2prompt?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Route Planner", "path": "/tools/rute", "fullPath": "/tools/rute?from=&to=&apikey=", "status": "Ready", "params": {"from": "Starting location", "to": "Destination"}}, {"name": "Morse Code Converter", "path": "/tools/morse", "fullPath": "/tools/morse?text=&apikey=", "status": "Ready", "params": {"text": "Text to convert"}}, {"name": "NGL Sender", "path": "/tools/ngl", "fullPath": "/tools/ngl?user=&text=&apikey=", "status": "Ready", "params": {"user": "NGL username or URL", "text": "Message to send"}}, {"name": "NIK Parser", "path": "/tools/nik-parser", "fullPath": "/tools/nik-parser?nik=&apikey=", "status": "Ready", "params": {"nik": "16 digit NIK (Nomor Induk Kependudukan)"}}, {"name": "NSFW Detector", "path": "/tools/nsfw", "fullPath": "/tools/nsfw?url=&apikey=", "status": "Ready", "params": {"url": "URL gambar yang ingin dideteksi NSFW"}}, {"name": "Code Obfuscator", "path": "/tools/obfuscate", "fullPath": "/tools/obfuscate?code=&apikey=", "status": "Ready", "params": {"code": "Code to obfuscate"}}, {"name": "Text to QR Code", "path": "/tools/text2qr", "fullPath": "/tools/text2qr?text=&apikey=", "status": "Ready", "params": {"text": "Text to convert"}}, {"name": "Qr to text", "path": "/tools/qr2text", "fullPath": "/tools/qr2text?url=&apikey=", "status": "Ready", "params": {"url": "QR Code image URL"}}, {"name": "Remove Background", "path": "/tools/removebg", "fullPath": "/tools/removebg?url=&apikey=", "status": "Ready", "params": {"url": "URL gambar yang ingin dihapus background-nya"}}, {"name": "Remove Watermark", "path": "/tools/removewm", "fullPath": "/tools/removewm?url=&apikey=", "status": "Ready", "params": {"url": "URL gambar yang ingin dihapus watermark-nya"}}, {"name": "SoundCloud Play", "path": "/tools/soundcloud", "fullPath": "/tools/soundcloud?q=&apikey=", "status": "Ready", "params": {"q": "Search query / judul lagu"}}, {"name": "Ssweb", "path": "/tools/ssweb", "fullPath": "/tools/ssweb?url=&apikey=", "status": "Ready", "params": {"url": "Website URL"}}, {"name": "TikTok Earnings Calculator", "path": "/tools/tiktokearning", "fullPath": "/tools/tiktokearning?username=&apikey=", "status": "Ready", "params": {"username": "TikTok username (tanpa @)"}}, {"name": "URL Shortener", "path": "/tools/tinyurl", "fullPath": "/tools/tinyurl?url=&apikey=", "status": "Ready", "params": {"url": "URL to shorten"}}, {"name": "To anime", "path": "/tools/toanime", "fullPath": "/tools/toanime?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Translate", "path": "/tools/translate", "fullPath": "/tools/translate?text=&to=&apikey=", "status": "Ready", "params": {"text": "Text to translate", "to": "Target language"}}, {"name": "Whatanime", "path": "/tools/whatanime", "fullPath": "/tools/whatanime?url=&apikey=", "status": "Ready", "params": {"url": "Image URL"}}, {"name": "Wink", "path": "/tools/wink", "fullPath": "/tools/wink?image_url=&apikey=", "status": "Ready", "params": {"image_url": "URL gambar yang akan di-enhance"}}, {"name": "YouTube Player", "path": "/tools/ytplay", "fullPath": "/tools/ytplay?q=&apikey=", "status": "Ready", "params": {"q": "Search query atau URL YouTube (wajib, contoh: masa depan suram)"}}]}, {"category": "User", "items": [{"name": "User Activity", "path": "/api/user/activity-logs", "fullPath": "/api/user/activity-logs?apikey=", "status": "Ready", "params": {}}, {"name": "User Usage", "path": "/api/user/usage", "fullPath": "/api/user/usage?apikey=", "status": "Ready", "params": {}}]}];
 
-  function copyBase() {
-    navigator.clipboard.writeText(origin + '/api');
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = 'Tersalin';
-    setTimeout(() => btn.textContent = 'Salin', 1500);
+const CAT_ICONS = {
+  'Artificial Intelligence':'🤖','ai-generate':'🎵','AI Image':'🖼️',
+  'anime':'🎌','bypass':'🔓','Canvas':'🎨','details':'🔍',
+  'Download':'⬇️','Games':'🎮','Information':'ℹ️','Live':'📡',
+  'maps':'🗺️','Random Content':'🎲','Search':'🔎','Stalk':'👁️',
+  'Tools':'🔧','User':'👤'
+};
+
+function catDisplay(name) {
+  const m = {'ai-generate':'AI Generate','anime':'Anime','bypass':'Bypass','details':'Details','maps':'Maps'};
+  return m[name] || name;
+}
+
+// ---- NAV ----
+function showPage(page, scrollTo) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  window.scrollTo(0,0);
+  if (page === 'docs' && scrollTo) {
+    setTimeout(() => {
+      const el = document.getElementById('cat-' + scrollTo);
+      if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      activateSbItem(scrollTo);
+    }, 80);
   }
+}
 
-  async function sendRequest() {
-    const method = document.getElementById('method').value;
-    const path = document.getElementById('path-input').value.trim();
-    const btn = document.getElementById('send-btn');
-    const box = document.getElementById('response-box');
-    const statusEl = document.getElementById('res-status');
-
-    if (!path) return;
-
-    const fullPath = path.startsWith('/') ? path : '/' + path;
-    const url = '/api' + fullPath;
-
-    btn.disabled = true;
-    btn.textContent = 'Mengirim...';
-    box.textContent = '';
-    statusEl.style.display = 'none';
-
-    const start = Date.now();
-
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Accept': 'application/json' }
-      });
-
-      const elapsed = Date.now() - start;
-      const data = await res.json().catch(() => null);
-
-      statusEl.style.display = 'block';
-      statusEl.className = 'res-status ' + (res.ok ? 'res-ok' : 'res-err');
-      statusEl.textContent = `${res.status} ${res.statusText} — ${elapsed}ms`;
-      box.textContent = JSON.stringify(data, null, 2);
-    } catch (err) {
-      statusEl.style.display = 'block';
-      statusEl.className = 'res-status res-err';
-      statusEl.textContent = 'Gagal menghubungi server';
-      box.textContent = err.message;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Kirim';
-    }
-  }
-
-  // Enter key di input
-  document.getElementById('path-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendRequest();
+// ---- HOME ----
+function buildHome() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  ENDPOINTS.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.innerHTML = `
+      <div class="cat-icon">${CAT_ICONS[cat.category] || '📦'}</div>
+      <div class="cat-info">
+        <div class="cat-name">${catDisplay(cat.category)}</div>
+        <div class="cat-count">${cat.items.length} endpoint</div>
+      </div>`;
+    card.addEventListener('click', () => showPage('docs', cat.category));
+    grid.appendChild(card);
   });
-</script>
+}
 
+// ---- SIDEBAR ----
+function buildSidebar() {
+  const list = document.getElementById('sidebar-list');
+  list.innerHTML = '';
+  ENDPOINTS.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'sb-item';
+    item.id = 'sb-' + cat.category;
+    item.innerHTML = `
+      <span class="sb-item-name">${CAT_ICONS[cat.category] || '📦'} ${catDisplay(cat.category)}</span>
+      <span class="sb-item-count">${cat.items.length}</span>`;
+    item.addEventListener('click', () => {
+      activateSbItem(cat.category);
+      const el = document.getElementById('cat-' + cat.category);
+      if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    list.appendChild(item);
+  });
+}
+
+function activateSbItem(catName) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const el = document.getElementById('sb-' + catName);
+  if (el) el.classList.add('active');
+}
+
+function filterSidebar(q) {
+  const lower = q.toLowerCase();
+  document.querySelectorAll('.sb-item').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(lower) ? '' : 'none';
+  });
+}
+
+// ---- DOCS ----
+function buildDocs() {
+  const container = document.getElementById('docs-content');
+  container.innerHTML = '';
+  ENDPOINTS.forEach(cat => {
+    const section = document.createElement('div');
+    section.className = 'cat-section';
+    section.id = 'cat-' + cat.category;
+
+    const header = document.createElement('div');
+    header.className = 'cat-section-header';
+    header.innerHTML = `
+      <span class="cat-section-icon">${CAT_ICONS[cat.category] || '📦'}</span>
+      <span class="cat-section-name">${catDisplay(cat.category)}</span>
+      <span class="cat-section-count">${cat.items.length} endpoint</span>`;
+    section.appendChild(header);
+
+    const list = document.createElement('div');
+    list.className = 'ep-list';
+
+    cat.items.forEach((ep, idx) => {
+      const card = buildEpCard(ep, cat.category + '_' + idx);
+      list.appendChild(card);
+    });
+
+    section.appendChild(list);
+    container.appendChild(section);
+  });
+}
+
+function buildEpCard(ep, uid) {
+  const card = document.createElement('div');
+  card.className = 'ep-card';
+  card.dataset.name = ep.name.toLowerCase();
+  card.dataset.path = ep.path.toLowerCase();
+
+  const paramKeys = Object.keys(ep.params || {});
+  const statusCls = ep.status === 'Ready' ? 'ready' : 'maintenance';
+
+  // Build params table HTML
+  let paramsHtml = '';
+  if (paramKeys.length > 0) {
+    paramsHtml = `
+      <div class="ep-section-title">Parameters</div>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          ${paramKeys.map(k => `<tr><td>${k}</td><td>${ep.params[k]}</td></tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  // Build playground inputs
+  const inputsHtml = paramKeys.map(k => `
+    <div class="pg-field">
+      <label>${k}</label>
+      <input type="text" placeholder="${ep.params[k]}" data-param="${k}" id="inp_${uid}_${k}"/>
+    </div>`).join('');
+
+  card.innerHTML = `
+    <div class="ep-header">
+      <span class="ep-method">GET</span>
+      <span class="ep-path">${ep.path}</span>
+      <span class="ep-name">${ep.name}</span>
+      <span class="ep-status ${statusCls}">${ep.status}</span>
+      <span class="ep-chevron">▾</span>
+    </div>
+    <div class="ep-body">
+      ${paramsHtml}
+      <div class="ep-section-title">Playground</div>
+      <div class="pg-inline">
+        <div class="pg-inputs">${inputsHtml}</div>
+        <div class="pg-row-action">
+          <button class="pg-send" onclick="sendEp('${uid}', '${ep.path}', ${JSON.stringify(paramKeys)})">Kirim</button>
+          <span class="pg-status" id="pgs_${uid}"></span>
+        </div>
+        <div class="pg-result" id="pgr_${uid}"></div>
+      </div>
+    </div>`;
+
+  card.querySelector('.ep-header').addEventListener('click', () => {
+    card.classList.toggle('open');
+  });
+
+  return card;
+}
+
+async function sendEp(uid, path, params) {
+  const btn = document.querySelector(`[onclick*="sendEp('${uid}'"]`);
+  const statusEl = document.getElementById('pgs_' + uid);
+  const resultEl = document.getElementById('pgr_' + uid);
+
+  const qs = new URLSearchParams();
+  params.forEach(p => {
+    const val = document.getElementById(`inp_${uid}_${p}`);
+    if (val && val.value.trim()) qs.set(p, val.value.trim());
+  });
+
+  const url = '/api' + path + (qs.toString() ? '?' + qs.toString() : '');
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  statusEl.textContent = '';
+  resultEl.classList.remove('show');
+
+  const t0 = Date.now();
+  try {
+    const res = await fetch(url, {headers:{'Accept':'application/json'}});
+    const elapsed = Date.now() - t0;
+    const data = await res.json().catch(() => null);
+    statusEl.className = 'pg-status ' + (res.ok ? 'ok' : 'err');
+    statusEl.textContent = `${res.status} · ${elapsed}ms`;
+    resultEl.textContent = JSON.stringify(data, null, 2);
+    resultEl.classList.add('show');
+  } catch(e) {
+    statusEl.className = 'pg-status err';
+    statusEl.textContent = 'Gagal';
+    resultEl.textContent = e.message;
+    resultEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Kirim';
+  }
+}
+
+// ---- GLOBAL SEARCH ----
+function globalSearch(q) {
+  const lower = q.toLowerCase().trim();
+  let anyVisible = false;
+
+  document.querySelectorAll('.cat-section').forEach(section => {
+    let sectionVisible = false;
+    section.querySelectorAll('.ep-card').forEach(card => {
+      const match = !lower ||
+        card.dataset.name.includes(lower) ||
+        card.dataset.path.includes(lower);
+      card.style.display = match ? '' : 'none';
+      if (match) sectionVisible = true;
+    });
+    section.style.display = sectionVisible ? '' : 'none';
+    if (sectionVisible) anyVisible = true;
+  });
+}
+
+// ---- INIT ----
+buildHome();
+buildSidebar();
+buildDocs();
+
+// Sidebar active on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      activateSbItem(e.target.id.replace('cat-', ''));
+    }
+  });
+}, {rootMargin: '-20% 0px -70% 0px'});
+
+document.querySelectorAll('.cat-section').forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
